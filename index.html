@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康食品双11B类混资报名情况查询计算器</title>
+<style>
+  :root {
+    --primary: #c2410c;
+    --primary-light: #fff7ed;
+    --primary-border: #fed7aa;
+    --green: #15803d;
+    --green-light: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #b91c1c;
+    --text: #1f2937;
+    --text-sub: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f8fafc;
+    --card: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px 16px 64px;
+  }
+  .container { max-width: 920px; margin: 0 auto; }
+
+  /* ===== 头部 ===== */
+  .header { text-align: center; margin-bottom: 20px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: 1px; }
+  .header .sub { color: var(--text-sub); font-size: 13px; margin-top: 6px; }
+
+  /* ===== 冲刺倒计时横幅 ===== */
+  .countdown-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px auto 0;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.35);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .countdown-banner .flame { font-size: 22px; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 4px 16px rgba(220,38,38,0.35); }
+    50% { transform: scale(1.04); box-shadow: 0 6px 22px rgba(220,38,38,0.5); }
+  }
+
+  /* ===== 门槛横幅（计算器最上方）===== */
+  .threshold-banner {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border: 1px solid var(--primary-border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .threshold-banner .badge {
+    flex-shrink: 0;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+  .threshold-banner h2 { font-size: 16px; margin-bottom: 6px; color: #9a3412; }
+  .threshold-banner .conds { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .cond {
+    background: #fff;
+    border: 1px solid var(--primary-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9a3412;
+  }
+  .cond .op { color: var(--text-sub); font-weight: 400; margin: 0 6px; }
+
+  /* ===== 出资方式横幅 ===== */
+  .split-banner {
+    background: var(--green-light);
+    border: 1px solid var(--green-border);
+    border-radius: 12px;
+    padding: 12px 22px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--green);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .split-banner .ratio {
+    background: #fff;
+    border: 1px solid var(--green-border);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-size: 15px;
+  }
+
+  /* ===== 卡片通用 ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: "";
+    width: 4px; height: 18px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+
+  /* ===== 表单 ===== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .field label .req { color: var(--red); margin-left: 2px; }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(194,65,12,0.12);
+  }
+  .field input.err { border-color: var(--red); box-shadow: 0 0 0 3px rgba(185,28,28,0.10); }
+  .field .hint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+  .field .hint.error { color: var(--red); }
+  .field .hint.ok { color: var(--green); }
+
+  .btn-row { margin-top: 18px; display: flex; gap: 12px; }
+  .btn {
+    padding: 11px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s, transform .05s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-ghost { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
+
+  /* ===== 结果区 ===== */
+  #result { display: none; }
+  .result-head {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 8px;
+    padding-bottom: 14px; border-bottom: 1px dashed var(--border);
+    margin-bottom: 14px;
+  }
+  .result-head .who { font-size: 17px; font-weight: 700; }
+  .result-head .who small { display: block; font-size: 13px; font-weight: 500; color: var(--text-sub); }
+  .tag {
+    display: inline-block;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+    background: var(--green-light); color: var(--green);
+    border: 1px solid var(--green-border);
+  }
+  .tag.warn { background: #fef2f2; color: var(--red); border-color: #fecaca; }
+  .tag.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .metric {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .metric .k { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+  .metric .v { font-size: 20px; font-weight: 700; line-height: 1.35; }
+  .metric .v small { display: block; font-size: 12px; font-weight: 500; color: var(--text-sub); }
+  .metric.hl { background: var(--primary-light); border-color: var(--primary-border); }
+  .metric.hl .v { color: var(--primary); }
+  .metric.platform .v { color: var(--green); }
+  .metric.price .v { color: #1d4ed8; }
+
+  .split-bar { margin: 6px 0 14px; }
+  .split-bar .bar {
+    height: 14px; border-radius: 999px; overflow: hidden;
+    display: flex; border: 1px solid var(--border);
+  }
+  .split-bar .seg-m { background: var(--primary); width: 50%; }
+  .split-bar .seg-p { background: #34d399; width: 50%; }
+  .split-bar .legend {
+    display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; font-size: 12px; color: var(--text-sub);
+  }
+  .split-bar .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+
+  .formula {
+    background: #f1f5f9; border-radius: 8px;
+    padding: 12px 16px; font-size: 13px; color: var(--text-sub);
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    line-height: 1.8;
+  }
+
+  /* ===== 测算结论 ===== */
+  .conclusion {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border: 1px solid var(--primary-border);
+    border-left: 5px solid var(--primary);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .conclusion .c-title {
+    font-weight: 800;
+    color: #9a3412;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .conclusion strong { color: var(--primary); font-size: 16px; }
+  .conclusion .c-note {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--primary-border);
+    font-size: 13px;
+    color: #9a3412;
+  }
+
+  /* ===== 混资券规则区 ===== */
+  .coupon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+  }
+  .coupon-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+  .coupon-item .ck {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #9a3412;
+  }
+  .coupon-item .cv { color: var(--text-sub); line-height: 1.7; }
+  .coupon-item .cv strong { color: var(--text); }
+  .src { margin-top: 12px; font-size: 12px; color: #9ca3af; }
+
+  /* ===== 规则表 ===== */
+  .rules-note {
+    background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px;
+  }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { background: var(--bg); font-weight: 600; color: var(--text-sub); }
+  tr:last-child td { border-bottom: none; }
+  tr.hot td { background: #fff7ed; }
+  .hot-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #dc2626, #ea580c);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+
+  details summary {
+    cursor: pointer; font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px; list-style: none;
+  }
+  details summary::before {
+    content: ""; width: 4px; height: 18px; background: var(--primary); border-radius: 2px;
+  }
+  details summary::after {
+    content: "▾"; margin-left: auto; color: var(--text-sub); transition: transform .15s;
+  }
+  details[open] summary::after { transform: rotate(180deg); }
+  details .rules-body { margin-top: 14px; }
+
+  /* 混资券规则：加大展开按钮 */
+  .coupon-details summary {
+    font-size: 18px;
+    padding: 14px 16px;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-border);
+    border-radius: 10px;
+    transition: background .15s;
+  }
+  .coupon-details summary:hover { background: #ffedd5; }
+  .coupon-details summary::before { height: 22px; width: 5px; }
+  .coupon-details summary::after { content: none; }
+  .coupon-details .expand-btn {
+    margin-left: auto;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .coupon-details[open] .expand-btn { background: #9a3412; }
+
+
+  /* ===== 免责声明 ===== */
+  .disclaimer {
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 13px;
+    padding: 16px;
+    border-top: 1px dashed var(--border);
+  }
+  .disclaimer strong { color: var(--red); }
+
+  @media (max-width: 560px) {
+    .threshold-banner { flex-direction: column; }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>健康食品双 11 B 类混资报名情况查询计算器</h1>
+    <div class="countdown-banner">
+      <span class="flame">🔥</span>最后倒计时 5 天冲刺！！<span class="flame">🔥</span>
+    </div>
+    <div class="sub">活动报名截止 11 月 15 日 23:59 ｜ 输入 KPI 三级行业、客户简称、商品名称、下单单价，测算商家自补金额与比例区间</div>
+  </div>
+
+  <!-- 报名门槛：固定展示在计算器最上方 -->
+  <div class="threshold-banner">
+    <div class="badge">报名门槛</div>
+    <div>
+      <h2>B 类混资报名条件</h2>
+      <div class="conds">
+        <div class="cond">店铺近 30 天无重大违规</div>
+        <div class="cond"><span class="op">且</span>店铺评分 &gt; 4.4 分</div>
+        <div class="cond"><span class="op">即可</span>报名 B 类混资</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 出资方式说明 -->
+  <div class="split-banner">
+    💰 出资方式：商家与平台 <span class="ratio">1 : 1</span> 共同出资（各承担补贴总额的 50%）
+  </div>
+
+  <!-- 混资券官方规则说明 -->
+  <div class="card">
+    <details class="coupon-details">
+      <summary>混资券官方规则（11.11 跨店满减补贴）<span class="expand-btn">点击查看详细</span></summary>
+      <div class="rules-body">
+        <div class="coupon-grid">
+          <div class="coupon-item">
+            <div class="ck">什么是混资券</div>
+            <div class="cv">平台向用户发放跨店满减消费券（满 X 元减 Y 元），<strong>平台与商家共同承担券补贴成本</strong>的即"混资券"（对应"全资券"为平台全额出资）。用户在已报名店铺购买活动商品，满足满减门槛即可使用。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">出资比例</div>
+            <div class="cv">商家报名商品参与混资券活动时，平台与商家按 <strong>1 : 1</strong> 共同出资，各承担券补贴成本的 50%。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">优惠力度上限</div>
+            <div class="cv">基础满 X 减 Y 券优惠力度 <strong>Y/X ≤ 12.5%</strong>（如 200-25 券，活动商品最高打 8.75 折）。<br>商家实际让利金额 ≤ <strong>报名活动价 × 12.5% × 50%</strong>（约 6.25%）。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">商家预期最低收入率</div>
+            <div class="cv">= 1 − 12.5%（券最高力度）× 50%（商家出资比例）= <strong>93.75%</strong>。用于评估利润空间，不代表用户实际支付价；用户若获得分享膨胀券，膨胀部分由平台全额承担。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">使用与叠加规则</div>
+            <div class="cv">在活动商品价格基础上生效，可与直播专享价、店铺优惠券叠加（在其计算后的价格上再算满减）；<strong>不与其他平台补贴、其他优惠券活动叠加</strong>（主播专属券、朋友补贴除外）。跨店使用时减免金额按商品参与满减金额<strong>按比例分摊</strong>。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">结算与其他</div>
+            <div class="cv">用户退款时，商家获得的平台补贴金额退回平台；小数点后超过两位截断，剩余由平台承担；报名成功后可自主退出（退出前订单仍需履约）；与其他平台补贴类活动<strong>报名互斥</strong>，同一商品同一周期仅可择一。</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">活动时间</div>
+            <div class="cv">活动周期：2026-10-12 14:00 ~ 11-15 23:59<br>报名时间：2026-09-28 14:00 ~ 11-15 23:59<br>价格校验期：2026-09-04 ~ 11-15</div>
+          </div>
+          <div class="coupon-item">
+            <div class="ck">报名入口</div>
+            <div class="cv">微信小店 &gt; 营销中心 &gt; 平台活动 &gt;【11.11跨店满减补贴】。报名时可查看该商品的<strong>商家预计最高出资金额</strong>并确认。</div>
+          </div>
+        </div>
+        <div class="src">来源：微信小店《2026年11.11平台大促-平台活动激励计划》官方公告（store.weixin.qq.com）</div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 查询表单 -->
+  <div class="card">
+    <div class="card-title">补贴测算查询</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>KPI 三级行业<span class="req">*</span></label>
+        <select id="industry">
+          <option value="传统滋补">传统滋补</option>
+          <option value="保健食品">保健食品</option>
+          <option value="膳食营养">膳食营养</option>
+          <option value="海外保健食品">海外保健食品</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>客户简称<span class="req">*</span></label>
+        <input type="text" id="client" placeholder="输入客户简称" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>商品名称<span class="req">*</span></label>
+        <input type="text" id="goodsName" placeholder="输入商品名称" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>下单单价（元）<span class="req">*</span></label>
+        <input type="number" id="price" min="0" step="0.01" placeholder="例如：99.00">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="calculate()">立即测算</button>
+      <button class="btn btn-ghost" onclick="resetForm()">重置</button>
+    </div>
+  </div>
+
+  <!-- 测算结果 -->
+  <div class="card" id="result">
+    <div class="result-head">
+      <div class="who">
+        <span id="rClient">—</span>
+        <small id="rGoods">—</small>
+      </div>
+      <div>
+        <span class="tag" id="rTag">命中规则</span>
+      </div>
+    </div>
+    <div class="conclusion" id="rConclusion">—</div>
+    <div class="metrics">
+      <div class="metric"><div class="k">下单单价</div><div class="v" id="rPrice">—</div></div>
+      <div class="metric price"><div class="k">补贴后售价区间</div><div class="v" id="rSalePrice">—</div></div>
+      <div class="metric hl"><div class="k">商家自补金额区间（50%）</div><div class="v" id="rMerchant">—</div></div>
+      <div class="metric hl"><div class="k">商家出资力度占比（占单价）</div><div class="v" id="rMerchantRate">—</div></div>
+      <div class="metric hl"><div class="k">商家单独补贴金额占比区间</div><div class="v" id="rMerchantRatio">—</div></div>
+      <div class="metric platform"><div class="k">平台出资金额区间（50%）</div><div class="v" id="rPlatform">—</div></div>
+    </div>
+    <div class="split-bar">
+      <div class="bar">
+        <div class="seg-m"></div>
+        <div class="seg-p"></div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--primary)"></span>商家自补 50% <span id="lgM">—</span></span>
+        <span><span class="dot" style="background:#34d399"></span>平台出资 50% <span id="lgP">—</span></span>
+      </div>
+    </div>
+    <div class="formula" id="rFormula">—</div>
+  </div>
+
+  <!-- 规则说明（可折叠） -->
+  <div class="card">
+    <details open>
+      <summary>当前补贴规则（分档区间配置）</summary>
+      <div class="rules-body">
+        <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;">
+          🔥 <strong>重点推荐档位：0~100 元 与 100~200 元</strong>——商家出资金额低（单均几元到十几元），出资少、撬动情况好，建议优先引导报名。
+        </div>
+        <div class="rules-note">
+          ⏳ 补贴力度区间基于官方口径（混资券力度上限 <strong>12.5%</strong>，商家 : 平台 = <strong>1 : 1</strong>）校准，正式券面额档位确认后可进一步精确（规则内置在页面代码 <code>RULES</code> 配置中）。
+        </div>
+        <div class="table-wrap">
+          <table id="rulesTable">
+            <thead>
+              <tr>
+                <th>KPI 三级行业</th>
+                <th>下单单价区间（元）</th>
+                <th>总补贴力度区间</th>
+                <th>商家出资占比区间</th>
+                <th>商家出资金额区间</th>
+                <th>商家 : 平台出资</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div style="font-size:12px;color:#9ca3af;margin-top:10px;">* 商家出资金额区间按各档位单价边界 × 力度 × 50% 测算，仅作量级参考；精确金额以输入下单单价后的测算结果为准。</div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 免责声明 -->
+  <div class="disclaimer">
+    <strong>注：本查询结果仅供参考，不作为实际补贴金额 100% 依据。</strong><br>
+    实际补贴金额以平台最终结算与活动规则为准，报名资格以店铺实际违规记录与评分为准。
+  </div>
+
+</div>
+
+<script>
+
+/* ============================================================
+ * B 类混资补贴规则配置（临时示例数据，待正式数据替换）
+ * 字段说明：
+ *   industry        KPI 三级行业
+ *   min / max       下单单价区间（元，含 min 不含 max；max 为 Infinity 表示无上限）
+ *   rateMin/rateMax 总补贴力度区间 = 补贴总额 / 下单单价（官方上限 12.5%）
+ * 出资比例：商家与平台固定 1 : 1（MERCHANT_SHARE = 0.5）
+ * ============================================================ */
+const MERCHANT_SHARE = 0.5;
+
+const RULES = [
+  { industry: "传统滋补",     min: 0,   max: 100,      rateMin: 0.04, rateMax: 0.08,  hot: true },
+  { industry: "传统滋补",     min: 100, max: 200,      rateMin: 0.05, rateMax: 0.09,  hot: true },
+  { industry: "传统滋补",     min: 200, max: 300,      rateMin: 0.06, rateMax: 0.10 },
+  { industry: "传统滋补",     min: 300, max: Infinity, rateMin: 0.08, rateMax: 0.125 },
+  { industry: "保健食品",     min: 0,   max: 100,      rateMin: 0.05, rateMax: 0.08,  hot: true },
+  { industry: "保健食品",     min: 100, max: 200,      rateMin: 0.06, rateMax: 0.10,  hot: true },
+  { industry: "保健食品",     min: 200, max: 300,      rateMin: 0.08, rateMax: 0.11 },
+  { industry: "保健食品",     min: 300, max: Infinity, rateMin: 0.10, rateMax: 0.125 },
+  { industry: "膳食营养",     min: 0,   max: 100,      rateMin: 0.04, rateMax: 0.08,  hot: true },
+  { industry: "膳食营养",     min: 100, max: 200,      rateMin: 0.05, rateMax: 0.09,  hot: true },
+  { industry: "膳食营养",     min: 200, max: 300,      rateMin: 0.06, rateMax: 0.10 },
+  { industry: "膳食营养",     min: 300, max: Infinity, rateMin: 0.08, rateMax: 0.12 },
+  { industry: "海外保健食品", min: 0,   max: 100,      rateMin: 0.05, rateMax: 0.09,  hot: true },
+  { industry: "海外保健食品", min: 100, max: 200,      rateMin: 0.06, rateMax: 0.10,  hot: true },
+  { industry: "海外保健食品", min: 200, max: Infinity, rateMin: 0.08, rateMax: 0.125 }
+];
+
+
+/* 渲染规则表 */
+(function renderRules() {
+  const tbody = document.querySelector("#rulesTable tbody");
+  RULES.forEach(r => {
+    const range = r.max === Infinity
+      ? `≥ ${fmt(r.min)}`
+      : `${fmt(r.min)} ~ ${fmt(r.max)}`;
+    // 商家出资金额区间：按档位单价边界 × 力度 × 50% 测算（无上限档位展示下限）
+    const amtLow = r.min * r.rateMin * MERCHANT_SHARE;
+    const amtRange = r.max === Infinity
+      ? `≥ ${yuan(amtLow)}（随单价递增）`
+      : `${yuan(amtLow)} ~ ${yuan(r.max * r.rateMax * MERCHANT_SHARE)}`;
+    const tr = document.createElement("tr");
+    if (r.hot) tr.className = "hot";
+    tr.innerHTML = `
+      <td>${r.industry}</td>
+      <td>${range}${r.hot ? '<span class="hot-badge">🔥 HOT</span>' : ''}</td>
+      <td>${pct(r.rateMin)} ~ ${pct1(r.rateMax)}</td>
+      <td>${pct1(r.rateMin / 2)} ~ ${pct1(r.rateMax / 2)}</td>
+      <td>${amtRange}</td>
+      <td>1 : 1（各 50%）</td>`;
+    tbody.appendChild(tr);
+  });
+})();
+
+function fmt(n) { return Number(n).toLocaleString("zh-CN", { maximumFractionDigits: 2 }); }
+function pct(n) { return (n * 100).toFixed(0) + "%"; }
+function pct1(n) { return (n * 100).toFixed(1).replace(/\.0$/, "") + "%"; }
+function yuan(n) { return "¥" + n.toFixed(2); }
+
+function calculate() {
+  const industry = document.getElementById("industry").value;
+  const client = document.getElementById("client").value.trim();
+  const goods = document.getElementById("goodsName").value.trim();
+  const price = parseFloat(document.getElementById("price").value);
+  const clientInput = document.getElementById("client");
+
+  if (!client) { alert("请填写客户简称"); clientInput.focus(); return; }
+  if (!goods) { alert("请填写商品名称"); return; }
+  if (isNaN(price) || price <= 0) { alert("请填写有效的下单单价"); return; }
+
+  // 命中规则
+  const rule = RULES.find(r => r.industry === industry && price >= r.min && price < r.max);
+  if (!rule) { alert("未命中任何补贴规则，请联系运营确认"); return; }
+
+  /* ---- 区间测算 ---- */
+  const subsidyMin = price * rule.rateMin;
+  const subsidyMax = price * rule.rateMax;
+
+  // 补贴后售价区间（补贴越高售价越低，注意端点交叉）
+  const saleMin = price - subsidyMax;
+  const saleMax = price - subsidyMin;
+
+  // 补贴占售价比例区间
+  const ratioMin = saleMax > 0 ? subsidyMin / saleMax : 0;
+  const ratioMax = saleMin > 0 ? subsidyMax / saleMin : 0;
+
+  // 商家自补 / 平台出资：1 : 1
+  const merchantMin = subsidyMin * MERCHANT_SHARE;
+  const merchantMax = subsidyMax * MERCHANT_SHARE;
+
+  // 商家单独补贴金额占比区间（占下单单价 = 力度 × 50%；占补贴后售价 = 自补 ÷ 售价，端点交叉）
+  const mRateOnPriceMin = merchantMin / price;
+  const mRateOnPriceMax = merchantMax / price;
+  const mRateOnSaleMin = saleMax > 0 ? merchantMin / saleMax : 0;
+  const mRateOnSaleMax = saleMin > 0 ? merchantMax / saleMin : 0;
+
+  /* ---- 渲染 ---- */
+  document.getElementById("rClient").textContent = client;
+  document.getElementById("rGoods").textContent = goods + " · " + industry;
+
+  // 命中规则标签
+  const tag = document.getElementById("rTag");
+  tag.textContent = "命中规则：" + industry;
+  tag.className = "tag";
+
+  document.getElementById("rPrice").innerHTML = yuan(price);
+
+  // 测算结论：商家出资金额 + 出资占比
+  document.getElementById("rConclusion").innerHTML =
+    `<div class="c-title">📌 测算结论</div>` +
+    `「${goods}」按下单单价 <strong>${yuan(price)}</strong> 测算：` +
+    `商家每单出资约 <strong>${yuan(merchantMin)} ~ ${yuan(merchantMax)}</strong>，` +
+    `占下单单价 <strong>${pct1(mRateOnPriceMin)} ~ ${pct1(mRateOnPriceMax)}</strong>` +
+    `（占补贴后售价 ${pct1(mRateOnSaleMin)} ~ ${pct1(mRateOnSaleMax)}），` +
+    `平台按 1:1 同等出资 ${yuan(merchantMin)} ~ ${yuan(merchantMax)}。` +
+    `<div class="c-note">※ 商家实际的补贴成本以满减订单实际补贴支出为主。</div>`;
+
+  document.getElementById("rSalePrice").innerHTML =
+    `${yuan(saleMin)} ~ ${yuan(saleMax)}<small>= 下单单价 − 总补贴</small>`;
+
+  document.getElementById("rMerchant").innerHTML =
+    `${yuan(merchantMin)} ~ ${yuan(merchantMax)}<small>= 总补贴 × 50%</small>`;
+
+  document.getElementById("rMerchantRate").innerHTML =
+    `${pct1(rule.rateMin / 2)} ~ ${pct1(rule.rateMax / 2)}<small>= 总补贴力度 × 50%（商家 : 平台 = 1 : 1）</small>`;
+
+  document.getElementById("rMerchantRatio").innerHTML =
+    `${pct1(mRateOnPriceMin)} ~ ${pct1(mRateOnPriceMax)}<small>占下单单价；占补贴后售价 ${pct1(mRateOnSaleMin)} ~ ${pct1(mRateOnSaleMax)}</small>`;
+
+  document.getElementById("rPlatform").innerHTML =
+    `${yuan(merchantMin)} ~ ${yuan(merchantMax)}<small>= 总补贴 × 50%</small>`;
+
+  document.getElementById("lgM").textContent = `（${yuan(merchantMin)} ~ ${yuan(merchantMax)}）`;
+  document.getElementById("lgP").textContent = `（${yuan(merchantMin)} ~ ${yuan(merchantMax)}）`;
+
+  document.getElementById("rFormula").innerHTML =
+    `测算过程：<br>` +
+    `总补贴 = ${yuan(price)} × (${pct(rule.rateMin)} ~ ${pct1(rule.rateMax)}) = ${yuan(subsidyMin)} ~ ${yuan(subsidyMax)}<br>` +
+    `补贴后售价 = ${yuan(price)} − 总补贴 = ${yuan(saleMin)} ~ ${yuan(saleMax)}<br>` +
+    `补贴占售价比例 = 总补贴 ÷ 补贴后售价 = ${pct1(ratioMin)} ~ ${pct1(ratioMax)}<br>` +
+    `商家自补 = 总补贴 × 50% = ${yuan(merchantMin)} ~ ${yuan(merchantMax)}<br>` +
+    `商家出资力度占比 = 总补贴力度 × 50% = ${pct1(rule.rateMin / 2)} ~ ${pct1(rule.rateMax / 2)}（占下单单价）<br>` +
+    `商家自补占下单单价 = ${yuan(merchantMin)} ~ ${yuan(merchantMax)} ÷ ${yuan(price)} = ${pct1(mRateOnPriceMin)} ~ ${pct1(mRateOnPriceMax)}（占补贴后售价 ${pct1(mRateOnSaleMin)} ~ ${pct1(mRateOnSaleMax)}）<br>` +
+    `平台出资 = 总补贴 × 50% = ${yuan(merchantMin)} ~ ${yuan(merchantMax)}（商家 : 平台 = 1 : 1）`;
+
+  const result = document.getElementById("result");
+  result.style.display = "block";
+  result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function resetForm() {
+  document.getElementById("industry").selectedIndex = 0;
+  document.getElementById("client").value = "";
+  document.getElementById("goodsName").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("client").classList.remove("err");
+  document.getElementById("result").style.display = "none";
+}
+
+/* 回车快捷测算 */
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") calculate();
+});
+</script>
+</body>
+</html>
